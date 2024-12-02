@@ -8,6 +8,14 @@ declare global {
 		 * @returns {R} - The result of the callback function.
 		 */
 		use<T, R>(this: T, callback: (variable: T) => R): R;
+
+		/**
+		 * Logs the object to the console.
+		 * @param this - The type of object.
+         * @param {string} prefix - The prefix to log.
+		 * @returns {T} - The object.
+		 */
+		log<T>(this: T, prefix?: string): T;
 	}
 }
 
@@ -22,8 +30,19 @@ Object.prototype.use = function <T, R>(callback: (variable: T) => R) {
 	return callback(this as unknown as T);
 };
 
+/**
+ * Logs the object to the console.
+ * @param this - The type of object.
+ * * @param {string} prefix - The prefix to log.
+ * @returns {T} - The object.
+ */
+Object.prototype.log = function <T>(this: T, prefix?: string) {
+	prefix? console.log(prefix, this) : console.log(this);
+	return this;
+};
+
 interface CustomIterator<T> extends Iterable<T> {
-	map<U>(callback: (value: T) => U): CustomIterator<U>;
+	map<U>(callback: (value: T, index: number, array: T[]) => U): CustomIterator<U>;
 	filter(callback: (value: T) => boolean): CustomIterator<T>;
 	reduce<U>(
 		callback: (accumulator: U, current: T, index: number, generator: CustomIterator<T>) => U,
@@ -41,10 +60,12 @@ class FunctionalIterator<T> implements CustomIterator<T> {
 		this.source = source;
 	}
 
-	map<U>(callback: (value: T) => U): CustomIterator<U> {
+	map<U>(callback: (value: T, index: number, array: T[]) => U): CustomIterator<U> {
 		const mappedIterator = function* (this: FunctionalIterator<T>) {
+            let index = 0;
 			for (const value of this.source) {
-				yield callback(value);
+				yield callback(value, index, this.source as any as T[]);
+                index++;
 			}
 		}.bind(this);
 
@@ -105,6 +126,11 @@ class FunctionalIterator<T> implements CustomIterator<T> {
 			},
 		};
 	}
+
+    log(): FunctionalIterator<T> {
+        console.log(this.toString());
+        return this;
+    }
 
 	toString(): string {
 		const previewIter = new FunctionalIterator<T>(this.source);
