@@ -1,13 +1,11 @@
 import { getInput, getInput2, getTestInput, getTestInput2 } from "./input";
 import "../../lib/util";
-import { iterator } from "../../lib/util";
 
 getInput()
     .split("\n")
     .map(line => line.split(""))
-    .use(tabs => iterator(index => [[1,0],[2,0],[3,0],[0,1],[0,2],[0,3],[1,1],[2,2],[3,3],[1,-1],[2,-2],[3,-3]][index % 12]) // all directions
-        .use(dirs => tabs.map((row, i) => 
-            row.map((item, j) => dirs
+    .use(tabs => tabs.map((row, i) => 
+            row.map((item, j) => [[1,0],[2,0],[3,0],[0,1],[0,2],[0,3],[1,1],[2,2],[3,3],[1,-1],[2,-2],[3,-3]]
                 .reduce((acc, val, index) => (acc.at(-1) + (tabs[i + val[0]]?.[j + val[1]] ?? "")).use(cur => (index + 1) % 3 == 0
                         ? cur == "XMAS" || cur == "SAMX"
                             ? [...acc.slice(0, -1), cur, item]
@@ -15,9 +13,8 @@ getInput()
                         : [...acc.slice(0, -1), cur]
                     )
                     ,[item]
-                    ,(_, __, index) => (index + 1) % 12 == 0
                 )
-            ))
+            )
         )
     )
     .map(rows => rows
