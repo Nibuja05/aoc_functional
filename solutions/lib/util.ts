@@ -85,7 +85,7 @@ class FunctionalIterator<T> implements CustomIterator<T> {
 	}
 
 	reduce<U>(
-		callback: (accumulator: U, current: T, index: number, generator: CustomIterator<T>) => U,
+		callback: (accumulator: U, current: T, index: number, generator: CustomIterator<T>, last: boolean) => U,
 		initialValue: U,
 		cancelCondition?: (accumulator: U, current: T, index: number, generator: CustomIterator<T>) => boolean
 	): U {
@@ -97,9 +97,10 @@ class FunctionalIterator<T> implements CustomIterator<T> {
 
 		while (!result.done) {
 			if (cancelCondition && cancelCondition(accumulator, result.value, index, this)) {
+                accumulator = callback(accumulator, result.value, index, this, true);
 				break;
 			}
-			accumulator = callback(accumulator, result.value, index, this);
+			accumulator = callback(accumulator, result.value, index, this, false);
 			index++;
 			result = generator.next();
 		}
@@ -127,8 +128,8 @@ class FunctionalIterator<T> implements CustomIterator<T> {
 		};
 	}
 
-    log(): FunctionalIterator<T> {
-        console.log(this.toString());
+    log(prefix?: string): FunctionalIterator<T> {
+        prefix? console.log(prefix, this.toString()) : console.log(this.toString());
         return this;
     }
 
