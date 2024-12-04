@@ -6,15 +6,15 @@ getInput()
     .split("\n")
     .map(line => line.split(""))
     .use(tabs => iterator(index => [[1,0],[2,0],[3,0],[0,1],[0,2],[0,3],[1,1],[2,2],[3,3],[1,-1],[2,-2],[3,-3]][index % 12]) // all directions
-        .use(dirs => Array.from({length: tabs.length}, (_, i) => 
-            Array.from({length: tabs[i].length}, (_, j) => dirs
+        .use(dirs => tabs.map((row, i) => 
+            row.map((item, j) => dirs
                 .reduce((acc, val, index) => (acc.at(-1) + (tabs[i + val[0]]?.[j + val[1]] ?? "")).use(cur => (index + 1) % 3 == 0
                         ? cur == "XMAS" || cur == "SAMX"
-                            ? [...acc.slice(0, -1), cur, tabs[i][j]]
-                            :  [...acc.slice(0, -1), tabs[i][j]]
+                            ? [...acc.slice(0, -1), cur, item]
+                            :  [...acc.slice(0, -1), item]
                         : [...acc.slice(0, -1), cur]
                     )
-                    ,[tabs[i][j]]
+                    ,[item]
                     ,(_, __, index) => (index + 1) % 12 == 0
                 )
             ))
@@ -33,8 +33,8 @@ getInput()
 getInput2()
     .split("\n")
     .map(line => line.split(""))
-    .use(tabs => Array.from({length: tabs.length}, (_, i) => 
-        Array.from({length: tabs[i].length}, (_, j) => tabs[i][j] != "A"
+    .use(tabs => tabs.map((row, i) => 
+        row.map((item, j) => item != "A"
             ? 0
             : [[-1,1],[1,1],[1,-1],[-1,-1]]
                 .map(([x, y]) => tabs[i + x]?.[ j + y] ?? "")
